@@ -1,0 +1,15 @@
+{
+  "name": "task-manager-node",
+  "version": "0.1",
+  "description": "task manager app using node, express, mongodb",
+  "main": "app.js",
+  "repository": "f",
+  "author": "Frank Gerold <FrankETSGerold@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "mongodb": "^3.5.7",
+    "mongoose": "^5.9.11",
+    "validator": "^13.0.0"
+  }
+}
