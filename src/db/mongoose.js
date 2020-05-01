@@ -1,5 +1,4 @@
 const mongoose = require('mongoose')
-const validator = require('validator')
 
 mongoUrl = 'mongodb://localhost:27017/'
 dbName = 'task-manager-api'
@@ -10,51 +9,7 @@ mongoose.connect(mongoUrl + dbName, {
   useCreateIndex: true
 })
 
-const User = mongoose.model('User', {
-  name: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  age: {
-    type: Number,
-    validate(value) {
-      if (value < 0) {
-        throw new Error('Age must be positive')
-      }
-      else if (value >= 150) {
-        throw new Error('Youre too old sry')
-      }
-    },
-    required: false,
-    default: 0
-  },
-  email: {
-    type: String,
-    validate(val) {
-      if (!validator.isEmail(val)) {
-        throw new Error('Must be a valid email!')
-      }
-    },
-    required: true,
-    trim: true
-  },
-  password: {
-    required: true,
-    type: String,
-    validate(val) {
-      if (val.length <= 6) {
-        throw new Error('Password must be at least 7 characters long')
-      }
-      // forgot case insensitivity!
-      else if (val.toLowerCase.includes('password')) {
-        throw new Error('Password too insecure. Pick a better one.')
-      }
-    },
-    trim: true
-  }
 
-})
 
 // const me = new User({
 //   name: 'Frankis',
@@ -63,24 +18,6 @@ const User = mongoose.model('User', {
 // })
 //
 // me.save().then(console.log).catch(console.log)
-
-const Task = mongoose.model('Task', {
-  title: {
-    type: String,
-    trim: true,
-    required: false
-  },
-  description: {
-    type: String,
-    trim: true,
-    required: true
-  },
-  complete: {
-    type: Boolean,
-    required: false,
-    default: false
-  }
-})
 
 // let fight = new Task({title:'Fight',description:'fisticuffs with rando',complete:false})
 //
@@ -127,6 +64,6 @@ const Task = mongoose.model('Task', {
 //   password: 'vsbsdhjnkmifuwytghjui8765rfdvbhnj'
 // }).save().catch(console.log)
 
-new Task({
-  description: '   run outside for a while'
-}).save()
+// new Task({
+//   description: '   run outside for a while'
+// }).save()
