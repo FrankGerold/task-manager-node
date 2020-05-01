@@ -3,7 +3,7 @@
   "version": "0.1",
   "description": "task manager app using node, express, mongodb",
   "main": "app.js",
-  "repository": "f",
+  "repository": "git@github.com:FrankGerold/task-manager-node.git",
   "author": "Frank Gerold <FrankETSGerold@gmail.com>",
   "license": "MIT",
   "private": false,
