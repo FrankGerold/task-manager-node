@@ -104,10 +104,22 @@ router.patch('/users/:id', async (req, res) => {
 
   // Attempt to update user
   try {
-    let updatedUser = await User.findByIdAndUpdate(id, updateParams, {
-      new: true,
-      runValidators: true
-    })
+    // let updatedUser = await User.findByIdAndUpdate(id, updateParams, {
+    //   new: true,
+    //   runValidators: true
+    // })
+    // CHange syntax to allow middleware to work with updates
+    let updatedUser = await User.findById(id)
+    // console.log('USER: ', user)
+    //
+    // let updatedUser = {
+    //   ...user._doc
+    // }
+    // console.log('UPDATED: ', updatedUser);
+
+    attemptedUpdates.forEach(update => updatedUser[update] = updateParams[update])
+
+    await updatedUser.save()
 
     if (!updatedUser) {
       return res.status(404)
