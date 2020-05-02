@@ -89,6 +89,42 @@ app.post('/users', async (req, res) => {
   }
 })
 
+app.patch('/users/:id', async (req, res) => {
+  let id = req.params.id
+  let updateParams = req.body
+
+  // validate update fields
+  let attemptedUpdates = Object.keys(updateParams)
+  const allowedUpdates = ['name', 'email', 'password', 'age']
+// every tests if all elements in an array pass the test
+  const isValidOperation = attemptedUpdates.every(update => allowedUpdates.includes(update))
+
+  if (!isValidOperation) {
+    return res.status(400)
+    .send({
+      error: 'Invalid Update'
+    })
+  }
+
+  // Attempt to update user
+  try {
+    let updatedUser = await User.findByIdAndUpdate(id, updateParams, {
+      new: true,
+      runValidators: true
+    })
+
+    if (!updatedUser) {
+      return res.status(404)
+      .send('user not found')
+    }
+
+    res.send(updatedUser)
+  } catch (e) {
+    res.status(400)
+    .send(e)
+  }
+})
+
 /***************************************************/
 
 // Task routes
@@ -159,6 +195,36 @@ app.post('/tasks', async (req, res) => {
 //     .send(e)
 //   })
 // })
+
+// Update Task
+app.patch('/tasks/:id', async (req, res) => {
+  let id = req.params.id
+  let taskUpdate = req.body
+
+  // Param Validation:
+  const allowedUpdates = ['title', 'description', 'complete']
+  let updates = Object.keys(taskUpdate)
+
+  const isValidOperation = updates.every(update => allowedUpdates.includes(update))
+
+  if (!isValidOperation) {
+    res.status(400)
+    .send('Invalid task updates')
+  }
+
+  try {
+    let task = await Task.findByIdAndUpdate(id, taskUpdate, {new: true, runValidators: true})
+
+    if (!task) {
+      return res.status(404).send('Task not found')
+    }
+
+    res.send(task)
+  } catch (e) {
+    res.status(400).send(e)
+  }
+})
+
 
 app.listen(port, () => {
   console.log(`Server running on ${port}!`);
