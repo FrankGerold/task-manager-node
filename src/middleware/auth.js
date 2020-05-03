@@ -13,7 +13,7 @@ const auth = async (req, res, next) => {
       _id: decoded._id,
       'tokens.token': token
     })
-    console.log(token, decoded, user);
+    // console.log(token, decoded, user);
     if (!user) {
       throw new Error()
     }

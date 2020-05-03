@@ -55,17 +55,7 @@ router.post('/users/logoutAll', auth, async (req, res) => {
   }
 })
 
-
-// app.post('/users', (req, res) => {
-//   let newUser = new User(req.body)
-//
-//   newUser.save()
-//   .then(() => res.status(201).send(newUser))
-//   .catch(e => {
-//     res.status(400)
-//     .send(e)
-//   })
-// })
+// Create new user
 router.post('/users', async (req, res) => {
   let userParams = new User(req.body)
 
@@ -82,6 +72,16 @@ router.post('/users', async (req, res) => {
     .send(e)
   }
 })
+// app.post('/users', (req, res) => {
+  //   let newUser = new User(req.body)
+  //
+  //   newUser.save()
+  //   .then(() => res.status(201).send(newUser))
+  //   .catch(e => {
+    //     res.status(400)
+    //     .send(e)
+    //   })
+    // })
 
 // Update user profile
 router.patch('/users/me', auth, async (req, res) => {

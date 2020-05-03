@@ -7,9 +7,12 @@ const router = new express.Router()
 
 // Task routes
 
-router.get('/tasks', async (req, res) => {
+// User's Task List
+router.get('/tasks', auth, async (req, res) => {
   try {
-    let tasks = await Task.find({})
+    let user = req.user
+    await user.populate('tasks').execPopulate()
+    let tasks = user.tasks
 
     res.send(tasks)
   } catch (e) {
@@ -17,17 +20,29 @@ router.get('/tasks', async (req, res) => {
     .send(e)
   }
 })
+// router.get('/tasks', async (req, res) => {
+//   try {
+//     let tasks = await Task.find({})
+//
+//     res.send(tasks)
+//   } catch (e) {
+//     res.status(500)
+//     .send(e)
+//   }
+// })
 // app.get('/tasks', (req, res) => {
 //   Task.find({})
 //   .then(tasks=>res.send(tasks))
 //   .catch(e=>res.status(500).send(e))
 // })
 
-router.get('/tasks/:id', async (req, res) => {
-  let id = req.params.id
+// Get specific task
+router.get('/tasks/:id', auth, async (req, res) => {
+  let _id = req.params.id
 
   try {
-    let task = await Task.findById(id)
+    // let task = await Task.findById(id)
+    let task = await Task.findOne({ _id, owner: req.user._id})
 
     if (!task) {
       return res.status(404).send('Task not found')
@@ -52,8 +67,13 @@ router.get('/tasks/:id', async (req, res) => {
 //   .catch(e=>res.status(500).send(e))
 // })
 
-router.post('/tasks', async (req, res) => {
-  let taskParams = new Task(req.body)
+// Create a Task
+router.post('/tasks', auth, async (req, res) => {
+  // let taskParams = new Task(req.body)
+  let taskParams = new Task({
+    ...req.body,
+    owner: req.user._id
+  })
   try {
     let newTask = await taskParams.save()
 
@@ -75,8 +95,9 @@ router.post('/tasks', async (req, res) => {
 // })
 
 // Update Task
-router.patch('/tasks/:id', async (req, res) => {
-  let id = req.params.id
+router.patch('/tasks/:id', auth, async (req, res) => {
+  let _id = req.params.id
+  let owner = req.user._id
   let taskUpdate = req.body
 
   // Param Validation:
@@ -92,15 +113,15 @@ router.patch('/tasks/:id', async (req, res) => {
 
   try {
     // let task = await Task.findByIdAndUpdate(id, taskUpdate, {new: true, runValidators: true})
-    let task = await Task.findById(id)
-
-    updates.forEach(update => task[update] = taskUpdate[update])
-
-    await task.save()
+    let task = await Task.findOne({ _id, owner})
 
     if (!task) {
       return res.status(404).send('Task not found')
     }
+
+    updates.forEach(update => task[update] = taskUpdate[update])
+
+    await task.save()
 
     res.send(task)
   } catch (e) {
@@ -109,18 +130,22 @@ router.patch('/tasks/:id', async (req, res) => {
 })
 
 // Delete a task
-router.delete('/tasks/:id', async (req, res) => {
+router.delete('/tasks/:id', auth, async (req, res) => {
   // Grab desired task ID from uri params
-  let taskId = req.params.id
+  let _id = req.params.id
+  let owner = req.user._id
 
   try {
-    // Try to delete the task
-    let task = await Task.findByIdAndDelete(taskId)
+    // Find the task owned by currrent user
+    let task = await Task.findOne({_id, owner})
 
     // If DB search doesnt find given task, return an error message
     if (!task) {
       return res.status(404).send('Task not found...')
     }
+
+    // Delete the task
+    await task.remove()
 
     // Send back the deleted task if successfully removed from DB
     res.send(task)
@@ -130,5 +155,32 @@ router.delete('/tasks/:id', async (req, res) => {
     res.status(500).send(e)
   }
 })
+// router.delete('/tasks/:id', async (req, res) => {
+//   // Grab desired task ID from uri params
+//   let taskId = req.params.id
+//
+//   try {
+//     // Try to delete the task
+//     let task = await Task.findByIdAndDelete(taskId)
+//
+//     // If DB search doesnt find given task, return an error message
+//     if (!task) {
+//       return res.status(404).send('Task not found...')
+//     }
+//
+//     // Send back the deleted task if successfully removed from DB
+//     res.send(task)
+//   } catch (e) {
+//     // Send a server error message if a backend issue prevents the
+//     // operation
+//     res.status(500).send(e)
+//   }
+// })
+
+////////////////////////////////////////////////////////////
+// Dev routes
+
+
+///////////////////////////////////////////////////////////////
 
 module.exports = router;
