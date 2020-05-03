@@ -26,7 +26,38 @@ router.post('/users/login', async (req, res) => {
   }
 })
 
+// user profile
+router.get('/users/me', auth, async (req, res) => {
+  res.send(req.user)
+})
 
+// Log out user
+router.post('/users/logout', auth, async (req, res) => {
+  try {
+    req.user.tokens = req.user.tokens.filter(token => token.token !== req.token)
+
+    await req.user.save()
+
+    res.send()
+  } catch (e) {
+    res.status(500).send()
+  }
+})
+
+// Kick all logins off current user!
+router.post('/users/logoutAll', auth, async (req, res) => {
+  try {
+    req.user.tokens = []
+
+    await req.user.save()
+
+    res.send()
+  } catch (e) {
+    res.status(500).send()
+  }
+})
+
+// List all users. for dev purposes, not in final app
 router.get('/users', auth, async (req, res) => {
   try {
     const users = await User.find({})

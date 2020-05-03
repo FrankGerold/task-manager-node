@@ -18,6 +18,10 @@ const auth = async (req, res, next) => {
       throw new Error()
     }
 
+    // Make this specific token used accessible to request handlers
+    req.token = token
+
+    // Return the active user
     req.user = user
     next()
   } catch (e) {
@@ -26,4 +30,4 @@ const auth = async (req, res, next) => {
   }
 }
 
-module.exports = auth;
+module.exports = auth
