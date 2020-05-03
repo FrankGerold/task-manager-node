@@ -55,6 +55,8 @@ const userSchema = new mongoose.Schema({
       required: true
     }
   }]
+}, {
+  timestamps: true
 })
 
 // Virtual Property connecting User to its tasks
