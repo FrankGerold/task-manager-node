@@ -5,12 +5,10 @@ const auth = require('../middleware/auth')
 
 const router = new express.Router()
 
-// userRouter.get('/test', (req, res) => {
-//   res.send('from nerw file')
-// })
 
-// /////////////////////////////////////////
 // User routes
+
+
 
 // Login
 router.post('/users/login', async (req, res) => {
@@ -57,7 +55,90 @@ router.post('/users/logoutAll', auth, async (req, res) => {
   }
 })
 
-// List all users. for dev purposes, not in final app
+
+// app.post('/users', (req, res) => {
+//   let newUser = new User(req.body)
+//
+//   newUser.save()
+//   .then(() => res.status(201).send(newUser))
+//   .catch(e => {
+//     res.status(400)
+//     .send(e)
+//   })
+// })
+router.post('/users', async (req, res) => {
+  let userParams = new User(req.body)
+
+  try {
+    let newUser = await userParams.save()
+
+    let token = await newUser.generateAuthToken()
+
+    res.status(201)
+    .send({newUser, token})
+
+  } catch (e) {
+    res.status(400)
+    .send(e)
+  }
+})
+
+// Update user profile
+router.patch('/users/me', auth, async (req, res) => {
+  let updateParams = req.body
+
+  // validate update fields
+  let attemptedUpdates = Object.keys(updateParams)
+  const allowedUpdates = ['name', 'email', 'password', 'age']
+
+  // every tests if all elements in an array pass the test
+  const isValidOperation = attemptedUpdates.every(update => allowedUpdates.includes(update))
+
+  if (!isValidOperation) {
+    return res.status(400)
+    .send({
+      error: 'Invalid Update'
+    })
+  }
+
+  // Attempt to update user
+  try {
+    let updatedUser = req.user
+
+    attemptedUpdates.forEach(update => updatedUser[update] = updateParams[update])
+
+    await updatedUser.save()
+
+    res.send(updatedUser)
+  } catch (e) {
+    res.status(400)
+    .send(e)
+  }
+})
+
+// Delete User
+router.delete('/users/me', auth, async (req, res) => {
+  let id = req.user._id
+
+  try {
+    // let user = await User.findByIdAndDelete(id)
+    //
+    // if (!user) {
+    //   return res.status(404).send('user not found')
+    // }
+
+    await req.user.remove()
+
+    res.send(req.user)
+  } catch (e) {
+    res.status(500).send(e)
+  }
+})
+
+////////////////////////////////////////////////////////////////
+// Dev routes, not in final app
+
+// List all users.
 router.get('/users', auth, async (req, res) => {
   try {
     const users = await User.find({})
@@ -98,6 +179,7 @@ router.get('/users/:id', async (req, res) => {
     .send(e)
   }
 })
+
 //   User.findById(_id)
 //   .then(user => {
 //     if (!user) {
@@ -108,33 +190,6 @@ router.get('/users/:id', async (req, res) => {
 //   })
 //   .catch(e => res.status(500).send())
 // })
-
-// app.post('/users', (req, res) => {
-//   let newUser = new User(req.body)
-//
-//   newUser.save()
-//   .then(() => res.status(201).send(newUser))
-//   .catch(e => {
-//     res.status(400)
-//     .send(e)
-//   })
-// })
-router.post('/users', async (req, res) => {
-  let userParams = new User(req.body)
-
-  try {
-    let newUser = await userParams.save()
-
-    let token = await newUser.generateAuthToken()
-
-    res.status(201)
-    .send({newUser, token})
-
-  } catch (e) {
-    res.status(400)
-    .send(e)
-  }
-})
 
 router.patch('/users/:id', async (req, res) => {
   let id = req.params.id
@@ -152,6 +207,7 @@ router.patch('/users/:id', async (req, res) => {
       error: 'Invalid Update'
     })
   }
+
 
   // Attempt to update user
   try {
@@ -184,22 +240,7 @@ router.patch('/users/:id', async (req, res) => {
   }
 })
 
-// Delete User
-router.delete('/users/:id', async (req, res) => {
-  let id = req.params.id
-
-  try {
-    let user = await User.findByIdAndDelete(id)
-
-    if (!user) {
-      return res.status(404).send('user not found')
-    }
-
-    res.send(user)
-  } catch (e) {
-    res.status(500).send(e)
-  }
-})
+//////////////////////////////////////////////////////////////////
 
 
 module.exports = router;
