@@ -29,7 +29,8 @@ const userSchema = new mongoose.Schema({
       }
     },
     required: true,
-    trim: true
+    trim: true,
+    unique: true
   },
   password: {
     required: true,
@@ -47,6 +48,31 @@ const userSchema = new mongoose.Schema({
   }
 })
 
+// Method for logging in
+userSchema.statics.findByCredentials = async (email, password) => {
+  // Check DB for given email
+  const user = await User.findOne({ email })
+  console.log(user);
+
+  // if not associated with any user, login fails
+  if (!user) {
+    throw new Error('Unable to log in')
+  }
+
+  // After finding user in DB with given email, hash given pawsswird and compare to password in DB.
+  const passMatch = await bcrypt.compare(password, user.password)
+  console.log(passMatch);
+  
+  // If password doesnt math, login fails
+  if (!passMatch) {
+    throw new Error('Unable to log in')
+  }
+
+  // FInally, if the given password matches the DB, the login succeeds and user in DB is returned
+  return user
+}
+
+// hash plaintext password before saving
 userSchema.pre('save', async function (next) {
   const user = this
 

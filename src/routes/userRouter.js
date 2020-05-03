@@ -11,6 +11,31 @@ const router = new express.Router()
 // /////////////////////////////////////////
 // User routes
 
+// Login
+router.post('/users/login', async (req, res) => {
+  try {
+    const user = await User.findByCredentials(req.body.email, req.body.password)
+
+    res.send(user)
+  } catch (e) {
+    console.log(e);
+    res.status(400).send()
+  }
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   // app.get('/users', (req, res) => {
   //   User.find({})
   //   .then(users=>res.send(users))
