@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -45,14 +46,19 @@ const userSchema = new mongoose.Schema({
       }
     },
     trim: true
-  }
+  },
+  tokens: [{
+    token: {
+      type: String,
+      required: true
+    }
+  }]
 })
 
 // Method for logging in
 userSchema.statics.findByCredentials = async (email, password) => {
   // Check DB for given email
   const user = await User.findOne({ email })
-  console.log(user);
 
   // if not associated with any user, login fails
   if (!user) {
@@ -61,8 +67,7 @@ userSchema.statics.findByCredentials = async (email, password) => {
 
   // After finding user in DB with given email, hash given pawsswird and compare to password in DB.
   const passMatch = await bcrypt.compare(password, user.password)
-  console.log(passMatch);
-  
+
   // If password doesnt math, login fails
   if (!passMatch) {
     throw new Error('Unable to log in')
@@ -82,6 +87,16 @@ userSchema.pre('save', async function (next) {
 
   next()
 })
+
+userSchema.methods.generateAuthToken = async function () {
+  const user = this
+  const token = jwt.sign({ _id: user._id.toString() }, 'Super Secret Key Alert!')
+
+  user.tokens = user.tokens.concat({ token })
+  await user.save()
+
+  return token
+}
 
 const User = mongoose.model('User', userSchema)
 
