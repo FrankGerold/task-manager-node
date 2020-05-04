@@ -8,10 +8,41 @@ const router = new express.Router()
 // Task routes
 
 // User's Task List
+  // GET /tasks?complete=true  sorts results by completion
+  // GET /tasks?limit=10&skip=20  pagination
+  // GET /tasks?sortBy=createdAt_asc / createdAt_desc
 router.get('/tasks', auth, async (req, res) => {
+
+  let sort = {}
+
+  // Match query to filter result by complete boolean
+  // TODO: optimize this later
+  let match = {}
+  if (req.query.complete) {
+    match.complete = req.query.complete === "true"
+  }
+
+  // Sorting query to determine order of results
+  if (req.query.sortBy) {
+    let sortValues = req.query.sortBy.split('_')
+    sort[sortValues[0]] = sortValues[1] === 'asc' ? 1 : -1
+  }
+
   try {
     let user = req.user
-    await user.populate('tasks').execPopulate()
+    await user.populate({
+      path: 'tasks',
+      match,
+      options: {
+        // Limit query determines how many results per page
+        limit: parseInt(req.query.limit),
+        
+        // Skip query determines which 'page' to return
+        skip: parseInt(req.query.skip),
+        sort
+      }
+    }).execPopulate()
+
     let tasks = user.tasks
 
     res.send(tasks)
