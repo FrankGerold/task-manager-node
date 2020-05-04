@@ -1,6 +1,6 @@
 {
   "name": "task-manager-node",
-  "version": "0.0.1",
+  "version": "1.0",
   "description": "task manager app using node, express, mongodb",
   "main": "src/app.js",
   "repository": "git@github.com:FrankGerold/task-manager-node.git",
