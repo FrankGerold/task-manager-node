@@ -62,6 +62,7 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 })
 
+
 // Virtual Property connecting User to its tasks
 userSchema.virtual('tasks', {
   ref: 'Task',
@@ -104,12 +105,14 @@ userSchema.pre('save', async function (next) {
   next()
 })
 
+
 // Delete all tasks when user is deleted
 userSchema.pre('remove', async function (next) {
   const user = this
   await Task.deleteMany({ owner: user._id })
   next()
 })
+
 
 userSchema.methods.generateAuthToken = async function () {
   const user = this

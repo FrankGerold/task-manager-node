@@ -14,8 +14,8 @@ const upload = multer({
     fileSize: 1000000
   },
   fileFilter(req, file, cb) {
-    // Only accept microsoft document files
-    // Regex: \.(doc|docx)$
+    // Only accept image files
+    // Regex: \.(jpg|jpeg|png)$
     if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
       return cb(new Error('Images Only!'))
     }
@@ -189,6 +189,24 @@ router.delete('/users/me/avatar', auth, async (req, res) => {
     error: error.message
   })
 })
+
+
+router.get('/users/:id/avatar', async (req, res) => {
+  try {
+    let user = await User.findById(req.params.id)
+
+    if (!user || !user.avatar) {
+      throw new Error()
+    }
+
+    res.set('Content-Type', 'image/jpg')
+    .send(user.avatar)
+  } catch (e) {
+    res.status(404).send(e)
+  }
+})
+
+
 
 ////////////////////////////////////////////////////////////////
 // Dev routes, not in final app
