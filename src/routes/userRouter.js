@@ -5,6 +5,7 @@ const sharp = require('sharp')
 
 const User = require('../models/user')
 const auth = require('../middleware/auth')
+const { sendWelcomeEmail, sendFarewell } = require('../emails/account')
 
 const router = new express.Router()
 
@@ -90,6 +91,8 @@ router.post('/users', async (req, res) => {
 
     let token = await newUser.generateAuthToken()
 
+    sendWelcomeEmail(newUser.email, newUser.name)
+
     res.status(201)
     .send({newUser, token})
 
@@ -157,6 +160,8 @@ router.delete('/users/me', auth, async (req, res) => {
 
     await req.user.remove()
 
+    sendFarewell(req.user.email, req.user.name)
+
     res.send(req.user)
   } catch (e) {
     res.status(500).send(e)
@@ -169,7 +174,7 @@ router.post('/users/me/avatar', auth, upload.single('avatar'), async (req, res) 
     .png()
     .resize({width: 250, height: 250})
     .toBuffer()
-  
+
   req.user.avatar = buffer
 
   await req.user.save()
