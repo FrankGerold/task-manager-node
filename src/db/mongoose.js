@@ -1,9 +1,9 @@
 const mongoose = require('mongoose')
 
 mongoUrl = process.env.MONGODB_URL
-dbName = process.env.DB_NAME
+// dbName = process.env.DB_NAME
 
-mongoose.connect(mongoUrl + dbName, {
+mongoose.connect(mongoUrl, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useCreateIndex: true
