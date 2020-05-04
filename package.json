@@ -2,7 +2,7 @@
   "name": "task-manager-node",
   "version": "1.0.0",
   "description": "task manager app using node, express, mongodb",
-  "main": "src/app.js",
+  "main": "src/index.js",
   "repository": "git@github.com:FrankGerold/task-manager-node.git",
   "author": "Frank Gerold <FrankETSGerold@gmail.com>",
   "license": "MIT",
@@ -20,10 +20,16 @@
   },
   "devDependencies": {
     "env-cmd": "^10.1.0",
-    "nodemon": "^2.0.3"
+    "jest": "^26.0.0",
+    "nodemon": "^2.0.3",
+    "supertest": "^4.0.2"
   },
   "scripts": {
-    "start": "node src/app.js",
-    "dev": "env-cmd -f ./config/dev.env nodemon -V"
+    "start": "node src/index.js",
+    "dev": "env-cmd -f ./config/dev.env nodemon -V",
+    "test": "env-cmd -f config/test.env jest --watch"
+  },
+  "jest": {
+    "testEnvironment": "node"
   }
 }
