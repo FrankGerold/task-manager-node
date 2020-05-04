@@ -1,9 +1,27 @@
 const express = require('express')
+const multer = require('multer')
 
 const User = require('../models/user')
 const auth = require('../middleware/auth')
 
 const router = new express.Router()
+
+const upload = multer({
+  dest: 'avatar',
+  limits: {
+    fileSize: 1000000
+  },
+  fileFilter(req, file, cb) {
+    // Regex: \.(doc|docx)$
+    if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+      return cb(new Error('Images Only!'))
+    }
+
+    cb(undefined, true)
+    // cb(undefined, false)
+    // cb(new Error('Couldnt uploading file'))
+  }
+})
 
 
 // User routes
@@ -133,6 +151,10 @@ router.delete('/users/me', auth, async (req, res) => {
   } catch (e) {
     res.status(500).send(e)
   }
+})
+
+router.post('/users/me/avatar', upload.single('avatar'), (req, res) => {
+  res.send()
 })
 
 ////////////////////////////////////////////////////////////////
