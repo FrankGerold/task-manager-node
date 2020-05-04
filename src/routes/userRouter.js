@@ -6,12 +6,15 @@ const auth = require('../middleware/auth')
 
 const router = new express.Router()
 
+// Settings for multer file upload middleware
 const upload = multer({
-  dest: 'avatar',
+  // dest: 'avatar',
   limits: {
+    // 1MB file limit
     fileSize: 1000000
   },
   fileFilter(req, file, cb) {
+    // Only accept microsoft document files
     // Regex: \.(doc|docx)$
     if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
       return cb(new Error('Images Only!'))
@@ -25,7 +28,6 @@ const upload = multer({
 
 
 // User routes
-
 
 
 // Login
@@ -42,10 +44,12 @@ router.post('/users/login', async (req, res) => {
   }
 })
 
+
 // user profile
 router.get('/users/me', auth, async (req, res) => {
   res.send(req.user)
 })
+
 
 // Log out user
 router.post('/users/logout', auth, async (req, res) => {
@@ -60,6 +64,7 @@ router.post('/users/logout', auth, async (req, res) => {
   }
 })
 
+
 // Kick all logins off current user!
 router.post('/users/logoutAll', auth, async (req, res) => {
   try {
@@ -72,6 +77,7 @@ router.post('/users/logoutAll', auth, async (req, res) => {
     res.status(500).send()
   }
 })
+
 
 // Create new user
 router.post('/users', async (req, res) => {
@@ -100,6 +106,7 @@ router.post('/users', async (req, res) => {
     //     .send(e)
     //   })
     // })
+
 
 // Update user profile
 router.patch('/users/me', auth, async (req, res) => {
@@ -134,6 +141,7 @@ router.patch('/users/me', auth, async (req, res) => {
   }
 })
 
+
 // Delete User
 router.delete('/users/me', auth, async (req, res) => {
   let id = req.user._id
@@ -153,17 +161,41 @@ router.delete('/users/me', auth, async (req, res) => {
   }
 })
 
-router.post('/users/me/avatar', upload.single('avatar'), (req, res) => {
+
+router.post('/users/me/avatar', auth, upload.single('avatar'), async (req, res) => {
+  req.user.avatar = req.file.buffer
+  await req.user.save()
+
   res.send()
 }, (error, req, res, next) => {
   res.status(400).send({error: error.message})
 })
 
+
+router.delete('/users/me/avatar', auth, async (req, res) => {
+  let user = req.user
+  try {
+    user.avatar = undefined
+
+    await user.save()
+
+    res.send(user)
+  } catch (e) {
+    res.status(500).send(e)
+  }
+}, (error, req, res, next) => {
+  res.status(400)
+  .send({
+    error: error.message
+  })
+})
+
 ////////////////////////////////////////////////////////////////
 // Dev routes, not in final app
 
-// List all users.
-router.get('/users', auth, async (req, res) => {
+
+// List all users
+router.get('/users', async (req, res) => {
   try {
     const users = await User.find({})
     res.send(users)
@@ -185,6 +217,8 @@ router.get('/users', auth, async (req, res) => {
 //   let _id = req.params.id
 //
 
+
+// specific user page
 router.get('/users/:id', async (req, res) => {
   let id = req.params.id
 
@@ -215,6 +249,7 @@ router.get('/users/:id', async (req, res) => {
 //   .catch(e => res.status(500).send())
 // })
 
+
 router.patch('/users/:id', async (req, res) => {
   let id = req.params.id
   let updateParams = req.body
@@ -222,7 +257,7 @@ router.patch('/users/:id', async (req, res) => {
   // validate update fields
   let attemptedUpdates = Object.keys(updateParams)
   const allowedUpdates = ['name', 'email', 'password', 'age']
-// every tests if all elements in an array pass the test
+  // every tests if all elements in an array pass the test
   const isValidOperation = attemptedUpdates.every(update => allowedUpdates.includes(update))
 
   if (!isValidOperation) {

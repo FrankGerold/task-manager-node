@@ -7,6 +7,7 @@ const router = new express.Router()
 
 // Task routes
 
+
 // User's Task List
   // GET /tasks?complete=true  sorts results by completion
   // GET /tasks?limit=10&skip=20  pagination
@@ -36,7 +37,7 @@ router.get('/tasks', auth, async (req, res) => {
       options: {
         // Limit query determines how many results per page
         limit: parseInt(req.query.limit),
-        
+
         // Skip query determines which 'page' to return
         skip: parseInt(req.query.skip),
         sort
@@ -66,6 +67,7 @@ router.get('/tasks', auth, async (req, res) => {
 //   .then(tasks=>res.send(tasks))
 //   .catch(e=>res.status(500).send(e))
 // })
+
 
 // Get specific task
 router.get('/tasks/:id', auth, async (req, res) => {
@@ -98,6 +100,7 @@ router.get('/tasks/:id', auth, async (req, res) => {
 //   .catch(e=>res.status(500).send(e))
 // })
 
+
 // Create a Task
 router.post('/tasks', auth, async (req, res) => {
   // let taskParams = new Task(req.body)
@@ -124,6 +127,7 @@ router.post('/tasks', auth, async (req, res) => {
 //     .send(e)
 //   })
 // })
+
 
 // Update Task
 router.patch('/tasks/:id', auth, async (req, res) => {
@@ -159,6 +163,7 @@ router.patch('/tasks/:id', auth, async (req, res) => {
     res.status(400).send(e)
   }
 })
+
 
 // Delete a task
 router.delete('/tasks/:id', auth, async (req, res) => {
@@ -207,6 +212,7 @@ router.delete('/tasks/:id', auth, async (req, res) => {
 //     res.status(500).send(e)
 //   }
 // })
+
 
 ////////////////////////////////////////////////////////////
 // Dev routes
