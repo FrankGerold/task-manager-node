@@ -1,5 +1,7 @@
 const express = require('express')
 const multer = require('multer')
+const sharp = require('sharp')
+
 
 const User = require('../models/user')
 const auth = require('../middleware/auth')
@@ -163,7 +165,13 @@ router.delete('/users/me', auth, async (req, res) => {
 
 
 router.post('/users/me/avatar', auth, upload.single('avatar'), async (req, res) => {
-  req.user.avatar = req.file.buffer
+  let buffer = await sharp(req.file.buffer)
+    .png()
+    .resize({width: 250, height: 250})
+    .toBuffer()
+  
+  req.user.avatar = buffer
+
   await req.user.save()
 
   res.send()
