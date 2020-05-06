@@ -42,7 +42,6 @@ router.post('/users/login', async (req, res) => {
 
     res.send({user, token})
   } catch (e) {
-    console.log(e);
     res.status(400).send()
   }
 })
@@ -87,14 +86,14 @@ router.post('/users', async (req, res) => {
   let userParams = new User(req.body)
 
   try {
-    let newUser = await userParams.save()
+    let user = await userParams.save()
 
-    let token = await newUser.generateAuthToken()
+    let token = await user.generateAuthToken()
 
-    sendWelcomeEmail(newUser.email, newUser.name)
+    sendWelcomeEmail(user.email, user.name)
 
     res.status(201)
-    .send({newUser, token})
+    .send({user, token})
 
   } catch (e) {
     res.status(400)
@@ -158,11 +157,11 @@ router.delete('/users/me', auth, async (req, res) => {
     //   return res.status(404).send('user not found')
     // }
 
-    await req.user.remove()
+     let user = await req.user.remove()
 
     sendFarewell(req.user.email, req.user.name)
 
-    res.send(req.user)
+    res.send(user)
   } catch (e) {
     res.status(500).send(e)
   }
